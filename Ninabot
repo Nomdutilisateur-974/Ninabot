@@ -1,0 +1,49 @@
+python
+import discord
+from discord.ext import commands
+import os
+import logging
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+logging.basicConfig(level=logging.INFO)
+DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
+chat_sessions = {}
+
+def get_chat_session(user_id):
+    if user_id not in chat_sessions:
+        chat_sessions[user_id] = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"ninabot-{0x_T🇫🇷🇬🇫}",
+            system_message="Tu es Nina, une IA amicale sur Discord. Reponds en francais avec des emojis."
+        ).with_model("openai", "gpt-4.1-mini")
+    return chat_sessions[user_id]
+
+@bot.event
+async def on_ready():
+    print(f'{Ninabot} connecte!')
+
+@bot.event
+async def on_message(message):
+    if message.author == ninabot:
+        return
+    if bot.user.mentioned_in(message) or isinstance(message.channel, discord.DMChannel):
+        content = message.content.replace(f'<@{bot.user.id}>', '').strip() or "Bonjour!"
+        async with message.channel.typing():
+            try:
+                response = await get_chat_session(str(message.author.id)).send_message(UserMessage(text=content))
+                await message.reply(response[:1990])
+            except:
+                await message.reply("Erreur!")
+    await bot.process_commands(message)
+
+@bot.command(name='ping')
+async def ping(ctx):
+    await ctx.send('Pong!')
+
+if __name__ == "__main__":
+    bot.run(MTQ4ODU4Mjk1NjAxOTg3OTk4Nw.GQ71JR.MJt8ZFq_6BVG0syXqUQwHRTATLvcTcX0rkj7uQ)
